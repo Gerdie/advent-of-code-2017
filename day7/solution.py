@@ -27,7 +27,28 @@ class Program_Set(object):
 			return program.weight
 		return program.weight + sum([self.get_stack_weight(substack_name) for substack_name in program.above])
 
-	def balance_stacks(self, bottom_program=None):
+	def get_unbalanced_program(self, bottom_program=None):
+		stack_weights = []
+		weights = []
+		for stack in bottom_program.above:
+			weight = self.get_stack_weight(stack)
+			new_stack = Stack('bottom_program'=stack, 'weight'=weight)
+			stack_weights.append(new_stack)
+			weights.append(weight)
+		if max(weights) == min(weights):
+			return True
+		else:
+			uneven_weights = [w for w in weights if weights.count(w) == 1]
+			uneven_stacks = [st.name for st in stack_weights if st.weight in uneven_weights]
+			if len(uneven_stacks) > 1:
+				for st in uneven_stacks:
+					if not self.get_unbalanced_program(bottom_program=st.bottom_program):
+						for ab_st in st.bottom_program.above:
+							if not get_unbalanced_program(ab_st.bottom_program):
+								return get_unbalanced_program(ab_st.bottom_program)
+						return st.bottom_program
+
+	def is_balanced_stack(self, bottom_program=None):
 		if not bottom_program:
 			bottom_program = self.bottom_program
 		uneven = True
@@ -40,16 +61,18 @@ class Program_Set(object):
 				new_stack = Stack('bottom_program'=stack, 'weight'=weight)
 				stack_weights.append(new_stack)
 				weights.append(weight)
-			if max([s.weight for s in stack_weights]) == min([s.weight for s in stack_weights]):
+			if max(weights) == min(weights):
 				uneven = False
 			else:
 				uneven_weights = [w for w in weights if weights.count(w) == 1]
 				uneven_stacks = [st.name for st in stack_weights if st.weight in uneven_weights]
 				if len(uneven_stacks) > 1:
+					for st in uneven_stacks:
 
-					if not self.balance_stacks()
+						if not self.is_balanced_stack(bottom_program=st.bottom_program):
 
-				bottom_program = 
+				else:
+					bottom_program = uneven_stacks[0].bottom_program
 
 		# 2. repeat
 
