@@ -20,7 +20,7 @@ class ProgramLookup(object):
     def add_program(self, program):
         self.programs[program.num] = program
 
-    def count_related_programs(self, program_num, related_programs=None):
+    def get_related_programs(self, program_num, related_programs=None):
         related_programs = related_programs or set([])
 
         program = self.programs[program_num]
@@ -28,9 +28,23 @@ class ProgramLookup(object):
             if child in related_programs:
                 continue
             related_programs.add(child)
-            self.count_related_programs(child, related_programs=related_programs)
+            self.get_related_programs(child, related_programs=related_programs)
 
-        return len(related_programs)
+        return related_programs
+
+    def find_all_groups(self):
+        programs = set([])
+        groups = 0
+
+        for program_num in self.programs:
+            # don't process programs in groups we've already counted
+            if program_num in programs:
+                continue
+            group_set = self.get_related_programs(program_num)
+            programs = programs | group_set
+            groups += 1
+
+        return groups
 
 
 all_programs = ProgramLookup()
@@ -47,4 +61,5 @@ with open('input.txt') as in_file:
         new_program.add_children(related_programs)
         all_programs.add_program(new_program)
 
-print('Part One: {}'.format(all_programs.count_related_programs(0)))
+print('Part One: {}'.format(len(all_programs.get_related_programs(0))))
+print('Part Two: {}'.format(all_programs.find_all_groups()))
